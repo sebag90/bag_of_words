@@ -5,10 +5,17 @@ import functions as fn
 import operator
 import copy
  
+# TODO:
+# argparse
+
             
 def main():
     #select language + stemmer
     lang_stemm_input = fn.lang_stemm()
+
+    # TODO:
+    # check if input/output folders are there
+    # if not create them 
 
     # retrieve all articles from folder bestand and stopwords
     articles_org = fn.retrieve_articles()
@@ -22,10 +29,6 @@ def main():
     # stem the articles
     for key in articles_org:
         articles_org[key] = fn.str_2_vec(articles_org[key], stopwords, lang_stemm_input)
-
-    # uncomment to check stemming of documents
-    # for key in articles_org:
-    #     print(key, "\t", articles_org[key])
     
     while True:
         user_input =  input("Enter data query or enter '...' to exit:\n> ")
@@ -39,9 +42,6 @@ def main():
         stemmed_input = fn.str_2_vec(cleaned_input, stopwords, lang_stemm_input)
        
         if len(stemmed_input) != 0:
-
-            # timer matrix term set instead of list
-            # startTime = datetime.now()
 
             # create document matrix terms
             matrix_terms = set()
@@ -66,16 +66,6 @@ def main():
                 for key in articles:
                     vec = fn.calculate_vec(matrix_terms, articles[key])
                     articles[key] = vec
-                
-                # end timer matrixterm set instead of list
-                # print(datetime.now() - startTime)
-
-                # uncomment to check stemming of documents + query
-                # for key in articles:
-                #     print(key, "\t", articles[key])
-                
-                # uncomment to check stemmed matrix terms
-                # print(matrix_terms)
 
                 # calculate TF * IFD (1 - log(n/nj))
                 articles = fn.calc_tf_idf(articles, freq_list)   

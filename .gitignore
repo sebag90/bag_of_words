@@ -1,12 +1,2 @@
-bag_of_words/__pycache__/cistem.cpython-37.pyc
-bag_of_words/__pycache__/functions.cpython-37.pyc
-caesar_cipher/.vscoded/settings.json
-caesar_cipher/.vscode/settings.json
-caesar_cipher/cipher
-caesar_cipher/main
-caesar_cipher/input/*
-caesar_cipher/output/*
-caesar_cipher/output/1
-caesar_cipher/output/2
-caesar_cipher/input/2
-caesar_cipher/input/1
+__pycache__/*
+.vscode/*
