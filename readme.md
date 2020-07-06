@@ -10,8 +10,8 @@ For each query it returns the most similar document based on vector similarity (
 
 ## Supported languages:
 - German
-- English
-- Italian
+- English (missing stopwords)
+- Italian (missing stopwords)
 
 ### Note:
 2 Tokenizers are available for the German language:  
