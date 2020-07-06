@@ -40,8 +40,8 @@ def lang_stemm():
 # retrieve articles
 def retrieve_articles():
     strings = {}
-    for filename in os.listdir('./bestand'):
-        path = "./bestand/" + filename
+    for filename in os.listdir('./input'):
+        path = "./input/" + filename
         with open(path, "r") as file:
             my_string = file.read()
             strings[filename] = my_string
