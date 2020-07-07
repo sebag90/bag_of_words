@@ -7,6 +7,7 @@ For each query it returns the most similar document based on vector similarity (
 
 ## Dependencies:
 - Natural Language Toolkit: https://www.nltk.org/
+- Progress: https://pypi.org/project/progress/
 
 ## Supported languages:
 - German

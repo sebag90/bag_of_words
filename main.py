@@ -6,7 +6,7 @@ import operator
 import copy
 import argparse
 import sys
- 
+from progress.bar import Bar
             
 def main():
 
@@ -71,24 +71,15 @@ def main():
                 # add stemmed query to matrix terms
                 matrix_terms = fn.create_matrix_terms(matrix_terms, stemmed_input)
 
-                
-
                 # calculate frequency list for every term 
                 freq_list = fn.calc_freq(articles, matrix_terms)
           
-                # progress bar
-                goal = len(articles)
-                sys.stdout.write("[%s]" % (" " * (goal**2)))
-                sys.stdout.flush()
-                sys.stdout.write("\b" * (goal**2 + 1)) 
-                
+                bar = Bar('Processing', fill="=", max = len(articles))
                 for key in articles:
                     vec = fn.calculate_vec(matrix_terms, articles[key])
                     articles[key] = vec
-                    # update progress bar
-                    sys.stdout.write("="*goal)
-                    sys.stdout.flush()
-                sys.stdout.write("=]\n")
+                    bar.next()
+                bar.finish()
 
                 # calculate TF * IFD (1 - log(n/nj))
                 articles = fn.calc_tf_idf(articles, freq_list)   
