@@ -78,9 +78,9 @@ def main():
           
                 # progress bar
                 goal = len(articles)
-                sys.stdout.write("[%s]" % (" " * 50))
+                sys.stdout.write("[%s]" % (" " * (goal**2)))
                 sys.stdout.flush()
-                sys.stdout.write("\b" * (50+1)) 
+                sys.stdout.write("\b" * (goal**2 + 1)) 
                 
                 for key in articles:
                     vec = fn.calculate_vec(matrix_terms, articles[key])
@@ -88,7 +88,7 @@ def main():
                     # update progress bar
                     sys.stdout.write("="*goal)
                     sys.stdout.flush()
-                sys.stdout.write("=\n")
+                sys.stdout.write("=]\n")
 
                 # calculate TF * IFD (1 - log(n/nj))
                 articles = fn.calc_tf_idf(articles, freq_list)   
