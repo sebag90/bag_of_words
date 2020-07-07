@@ -9,6 +9,9 @@ For each query it returns the most similar document based on vector similarity (
 - Natural Language Toolkit: https://www.nltk.org/
 - Progress: https://pypi.org/project/progress/
 
+### Install:
+pip3 install -r requirements.txt
+
 ## Supported languages:
 - German
 - English 
