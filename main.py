@@ -89,7 +89,7 @@ def main():
                 print("Best result: ", max(results.items(), key=operator.itemgetter(1))[0], "\n")
     
         else:
-            print("Sorry, try with another query")
+            print("Sorry, try with another query\n")
     
 
 if __name__ == "__main__":
