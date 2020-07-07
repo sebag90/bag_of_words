@@ -5,6 +5,7 @@ import functions as fn
 import operator
 import copy
 import argparse
+import sys
  
             
 def main():
@@ -70,11 +71,24 @@ def main():
                 # add stemmed query to matrix terms
                 matrix_terms = fn.create_matrix_terms(matrix_terms, stemmed_input)
 
+                
+
                 # calculate frequency list for every term 
                 freq_list = fn.calc_freq(articles, matrix_terms)
+          
+                # progress bar
+                goal = len(articles)
+                sys.stdout.write("[%s]" % (" " * 50))
+                sys.stdout.flush()
+                sys.stdout.write("\b" * (50+1)) 
+                
                 for key in articles:
                     vec = fn.calculate_vec(matrix_terms, articles[key])
                     articles[key] = vec
+                    # update progress bar
+                    sys.stdout.write("="*goal)
+                    sys.stdout.flush()
+                sys.stdout.write("=\n")
 
                 # calculate TF * IFD (1 - log(n/nj))
                 articles = fn.calc_tf_idf(articles, freq_list)   
@@ -82,7 +96,7 @@ def main():
                 # calculate vector cos similarity and print out the best result
                 results = fn.find_best_match(articles)
                 print("Best result: ", max(results.items(), key=operator.itemgetter(1))[0], "\n")
-                # print(datetime.now() - startTime)
+    
         else:
             print("Sorry, try with another query")
     
