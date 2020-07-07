@@ -2,40 +2,9 @@
 
 import cistem as cistem
 import os
-import math          
+import math   
+import json       
 from nltk.stem.snowball import SnowballStemmer
-
-# select a language and a stemmer (ITA and EN only Snowball, DE also CISTEM)
-def lang_stemm():
-    language = ""
-    de_stemmer = ""
-    _lang_stemm = {}
-    while language == "":
-        lang_input = input("Select a language (DE - ITA - EN)\n> ")
-        if lang_input.lower() in ("deutsch", "d", "de", "german"):
-            language = "german"
-            while de_stemmer == "":
-                de_stemmer_inp = input("Which stemmer would you like to use, CISTEM or SnowBall?\n> ")
-                if de_stemmer_inp.lower() in ("cistem", "cis", "c"):
-                    print("you selected the CISTEM stemmer")
-                    de_stemmer = "cistem"
-                elif de_stemmer_inp.lower() in ("snowball", "snow", "ball", "s"):
-                    print("you selected the SnowBall Stemmer")
-                    de_stemmer = "snowball"
-                else:
-                    print("sorry try again")
-        elif lang_input.lower() in ("italian", "it", "ita", "i"):
-            language = "italian"
-            de_stemmer = "snowball"
-        elif lang_input.lower() in ("english", "en", "e", "eng"):
-            language = "english"
-            de_stemmer = "snowball"
-        else:
-            print("the selected language is not supported")
-    
-    _lang_stemm["language"] = language
-    _lang_stemm["stemmer"] = de_stemmer
-    return _lang_stemm
 
 # retrieve articles
 def retrieve_articles():
@@ -68,32 +37,41 @@ def clean_string(_input_str):
 
 
 # collect stop words after removing whitespaces and /n
-def collect_stopwords():
+def collect_stopwords(language):
     nonowords = set()
-    with open("stopwords.txt") as stopwords:
-        for word in stopwords:
-            newword = word.replace(" ", "")
-            newword2 = newword.replace("\n", "")
-            nonowords.add(newword2.lower())
+    with open("stopwords-iso.json") as stopwords:
+        data = json.load(stopwords)
+    for word in data[language]:
+        newword = word.replace(" ", "")
+        newword2 = newword.replace("\n", "")
+        nonowords.add(newword2.lower())
+
     return nonowords
 
 
 # remove stopwords and stem a string
-def str_2_vec(_input_string, _nonowords, _lang_stemm):
+def str_2_vec(_input_string, _nonowords, language, cis):
     # extract single words
     splits = _input_string.split()
     cleaned = []
     stemmed = []
+
+    languages = {
+        "en" : "english",
+        "it" : "italian",
+        "de" : "german"
+    }
+    
     # if word is not a stop word, save it in a new list (vector)
     for something in splits:
         if something.lower() not in _nonowords:
             cleaned.append(something)
     # stem
-    if _lang_stemm["stemmer"] == "cistem":
+    if cis == True and language == "de":
         for element in cleaned:
             stemmed.append(cistem.stem(element))
     else:
-        stemmer = SnowballStemmer(_lang_stemm["language"])
+        stemmer = SnowballStemmer(languages[language])
         for element in cleaned:
             stemmed.append(stemmer.stem(element))
        
@@ -146,7 +124,7 @@ def find_best_match(_articles):
     results = {}
     for key in _articles:
         if key != "query":
-            # point product, length vector query, length vector n
+            # dot product, length vector query, length vector n
             pprod = 0
             len_q = 0
             len_n = 0

@@ -10,8 +10,8 @@ For each query it returns the most similar document based on vector similarity (
 
 ## Supported languages:
 - German
-- English (missing stopwords)
-- Italian (missing stopwords)
+- English 
+- Italian 
 
 ### Note:
 2 Tokenizers are available for the German language:  
@@ -19,4 +19,4 @@ For each query it returns the most similar document based on vector similarity (
 - CISTEM https://github.com/LeonieWeissweiler/CISTEM
 
 ### Stopwords:
-Source: https://github.com/stopwords-iso/stopwords-de 
+Source: https://github.com/stopwords-iso/stopwords-iso
