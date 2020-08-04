@@ -2,8 +2,8 @@
 
 import cistem as cistem
 import os
-import math   
-import json       
+import math
+import json
 from nltk.stem.snowball import SnowballStemmer
 
 # retrieve articles
@@ -61,7 +61,7 @@ def str_2_vec(_input_string, _nonowords, language, cis):
         "it" : "italian",
         "de" : "german"
     }
-    
+
     # if word is not a stop word, save it in a new list (vector)
     for something in splits:
         if something.lower() not in _nonowords:
@@ -74,7 +74,7 @@ def str_2_vec(_input_string, _nonowords, language, cis):
         stemmer = SnowballStemmer(languages[language])
         for element in cleaned:
             stemmed.append(stemmer.stem(element))
-       
+
     return stemmed
 
 
@@ -84,13 +84,13 @@ def create_matrix_terms(_matrix_terms, _article):
         if term not in _matrix_terms:
             _matrix_terms.add(term)
     return _matrix_terms
-        
+
 
 # calculate TF vector for every stemmed document
 def calculate_vec(_matrix_terms, _stemmed_list):
     string_vec = []
     for single_term in _matrix_terms:
-        counter = 0 
+        counter = 0
         for term in _stemmed_list:
             if single_term == term:
                 counter = counter + 1
@@ -129,9 +129,19 @@ def find_best_match(_articles):
             len_q = 0
             len_n = 0
             for i in range(len(_articles[key])):
-                pprod = pprod + _articles[key][i] * _articles["query"][i] 
+                pprod = pprod + _articles[key][i] * _articles["query"][i]
                 len_n = len_n + ((_articles[key][i])**2)
                 len_q = len_q + ((_articles["query"][i])**2)
             cos = pprod / math.sqrt(len_n * len_q)
             results[key] = cos
     return results
+
+
+# print progress bar
+def print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+    if iteration == total:
+        print()
