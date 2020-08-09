@@ -23,3 +23,10 @@ pip3 install -r requirements.txt
 
 ### Stopwords:
 Source: https://github.com/stopwords-iso/stopwords-iso
+
+## Use:
+place your text files in the input folder and start main.py:  
+```
+main.py [language] [-c]  
+es. python3 main.py de -c
+```
