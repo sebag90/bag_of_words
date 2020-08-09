@@ -54,7 +54,7 @@ def main():
         if len(stemmed_input) != 0:
 
             # create document matrix terms
-            matrix_terms = set()
+            matrix_terms = []
             for key in articles:
                 matrix_terms = fn.create_matrix_terms(matrix_terms, articles[key])
 
@@ -80,7 +80,6 @@ def main():
                     articles[key] = vec
                     fn.print_progress_bar(i + 1, len(articles), prefix = 'Processing:', suffix = 'Complete', length = 30)
                     i += 1
-
 
                 # calculate TF * IFD (1 - log(n/nj))
                 articles = fn.calc_tf_idf(articles, freq_list)

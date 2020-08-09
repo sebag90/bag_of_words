@@ -82,7 +82,7 @@ def str_2_vec(_input_string, _nonowords, language, cis):
 def create_matrix_terms(_matrix_terms, _article):
     for term in _article:
         if term not in _matrix_terms:
-            _matrix_terms.add(term)
+            _matrix_terms.append(term)
     return _matrix_terms
 
 
