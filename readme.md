@@ -1,7 +1,7 @@
 Github: https://github.com/sebag90/bag_of_words
 
 # Bag of Words:
-A bag of words model written in python.  
+A search engine based on a bag  of words model written in python.
 The model takes as input every document in the input folder and a query from the user and creates a vector space.  
 For each query it returns the most similar document based on vector similarity (dot product).
 
@@ -16,17 +16,12 @@ pip3 install -r requirements.txt
 - English 
 - Italian 
 
-### Note:
-2 Tokenizers are available for the German language:  
-- Snowball (from nltk)
-- CISTEM https://github.com/LeonieWeissweiler/CISTEM
-
 ### Stopwords:
 Source: https://github.com/stopwords-iso/stopwords-iso
 
 ## Use:
 place your text files in the input folder and start main.py:  
 ```
-main.py [language] [-c]  
-es. python3 main.py de -c
+search.py language
+es. python3 main.py de
 ```
