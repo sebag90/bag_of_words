@@ -66,7 +66,7 @@ def main():
         #print_progress_bar(j, len(articles), prefix="Loading", length=40)
        
 
-    bow.compute_matrix()
+    bow.compute_matrix(process=True)
     
     
     while True:

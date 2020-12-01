@@ -86,7 +86,7 @@ class BagWords:
                 self.vocabulary = np.append(self.vocabulary, term)
 
 
-    def calculate_vec(self, sentence_vector):
+    def calculate_vec(self, sentence_vector, voc=None):
         """
         given a sentence in the form of a list of stemmed tokens
         this method calculates a term frequency vector based on 
@@ -95,12 +95,15 @@ class BagWords:
         Input: vector of tokens
         Output: term frequency vector
         """
+        if voc == None: 
+            vocabulary = np.array(self.vocabulary) 
+        else:
+            vocabulary = np.array(voc)
 
-        self.vocabulary = np.array(self.vocabulary) 
         sentence_vector = np.array(sentence_vector)
 
-        indexes = [np.where(x == self.vocabulary)[0][0] for x in sentence_vector]
-        result = np.zeros(self.vocabulary.shape)
+        indexes = [np.where(x == vocabulary)[0][0] for x in sentence_vector]
+        result = np.zeros(vocabulary.shape)
 
         for i in indexes:
             result[i] += 1
@@ -113,7 +116,7 @@ class BagWords:
 
 
 
-    def compute_matrix(self):
+    def compute_matrix(self, process=False):
         """
         given all the sentences added, the bag of words will compute
         the term frequency matrix
@@ -125,7 +128,8 @@ class BagWords:
             if not isinstance(self.texts[i], list):
                 self.texts[i] = self.str_2_vec(self.texts[i])
                 self.create_vocabulary(self.texts[i])
-                print_progress_bar(i+1, len(self.texts), prefix="Loading ", length=40)
+                if process == True:
+                    print_progress_bar(i+1, len(self.texts), prefix="Loading ", length=40)
          
         
         # calculate matrix
@@ -133,9 +137,10 @@ class BagWords:
         for text in self.texts:
             vec = self.calculate_vec(text)
             self.matrix.append(vec)
-            print_progress_bar(j, len(self.texts), prefix="Indexing", length=40)
-            j += 1
-        print()
+            if process == True:
+                print_progress_bar(j, len(self.texts), prefix="Indexing", length=40)
+                j += 1
+
         self.matrix = np.array(self.matrix)
 
 
@@ -186,12 +191,10 @@ class BagWords:
             difference = set(tokens) - set(self.vocabulary)
             to_append = np.zeros((self.matrix.shape[0], len(difference)))
             matrix = np.append(self.matrix, to_append, axis=1)
-
-            self.create_vocabulary(tokens)
-            question_vector = self.calculate_vec(tokens)
-
+            new_voc = list(self.vocabulary) + list(difference)
+            question_vector = self.calculate_vec(tokens, new_voc)
             result = np.matmul(matrix, question_vector)
-        
+
             return np.argmax(result)
 
 
