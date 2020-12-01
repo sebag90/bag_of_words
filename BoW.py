@@ -9,6 +9,16 @@ import numpy as np
 from nltk.stem.snowball import SnowballStemmer
 
 
+
+# print progress bar
+def print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+    if iteration == total:
+        print()
+
 class BagWords:
 
     def __init__(self, language):
@@ -110,15 +120,23 @@ class BagWords:
         """
         self.matrix = []
         # add all sentences to vocabulary
+        
         for i in range(len(self.texts)):
             if not isinstance(self.texts[i], list):
                 self.texts[i] = self.str_2_vec(self.texts[i])
                 self.create_vocabulary(self.texts[i])
+                print_progress_bar(i+1, len(self.texts), prefix="Loading ", length=40)
+         
         
         # calculate matrix
+        j = 1
         for text in self.texts:
             vec = self.calculate_vec(text)
             self.matrix.append(vec)
+            print_progress_bar(j, len(self.texts), prefix="Indexing", length=40)
+            j += 1
+        print()
+        self.matrix = np.array(self.matrix)
 
 
     def add_sentence(self, sentence):
@@ -150,15 +168,31 @@ class BagWords:
 
 
     def similarity(self, new_sentence):
+        """
+        given a new string calculates the similarity
+        between it and every other vector and returns
+        the index of the text.
+
+        Input: string
+        Output: index of the most similar text (int)
+        """
         cleaned = self.clean_string(new_sentence)
         tokens = self.str_2_vec(cleaned)
-        self.create_vocabulary(tokens)
-        question_vector = self.calculate_vec(tokens)
-        self.compute_matrix()    
+        
+        if not set(tokens).intersection(set(self.vocabulary)):
+            return None
 
-        result = np.matmul(self.matrix, question_vector)
-    
-        return np.argmax(result)
+        else:
+            difference = set(tokens) - set(self.vocabulary)
+            to_append = np.zeros((self.matrix.shape[0], len(difference)))
+            matrix = np.append(self.matrix, to_append, axis=1)
+
+            self.create_vocabulary(tokens)
+            question_vector = self.calculate_vec(tokens)
+
+            result = np.matmul(matrix, question_vector)
+        
+            return np.argmax(result)
 
 
 

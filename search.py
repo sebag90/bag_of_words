@@ -61,11 +61,10 @@ def main():
     articles = retrieve_articles("input")
     bow = BagWords(args.language)
 
-    j = 1
     for article in articles:
         bow.add_sentence(articles[article]["text"])
-        print_progress_bar(j, len(articles), prefix="Loading", length=40)
-        j += 1
+        #print_progress_bar(j, len(articles), prefix="Loading", length=40)
+       
 
     bow.compute_matrix()
     
@@ -76,7 +75,10 @@ def main():
             break
 
         result = bow.similarity(user_input)
-        print(articles[str(result + 1)]["title"], "\n")
+        if result != None:
+            print(articles[str(result + 1)]["title"], "\n")
+        else: 
+            print("No matching document found\n")
 
 
 if __name__ == "__main__":
