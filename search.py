@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 
+
 from BoW import BagWords
 import argparse
 import sys
 import os
 import re
-
 
 
 def retrieve_articles(path):
@@ -29,20 +29,7 @@ def retrieve_articles(path):
     return strings
 
 
-
-# print progress bar
-def print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
-    if iteration == total:
-        print()
-
-
-
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument("language", help="select a language (en - de - it)", type=str, metavar = "lang")
     parser.add_argument("-c", help="change the default tokenizer for German from Snowball to Cistem", action = "store_true")
@@ -63,20 +50,20 @@ def main():
 
     for article in articles:
         bow.add_sentence(articles[article]["text"])
-        #print_progress_bar(j, len(articles), prefix="Loading", length=40)
-       
-
+        
     bow.compute_matrix(process=True)
-    
-    
+    bow.tf_idf()
+       
     while True:
         user_input =  input("Enter data query or '...' to exit:\n> ")
         if user_input == "...":
             break
 
         result = bow.similarity(user_input)
+
         if result != None:
             print(articles[str(result + 1)]["title"], "\n")
+
         else: 
             print("No matching document found\n")
 
