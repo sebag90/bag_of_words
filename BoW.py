@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 
-import os
-import re
-import math
 import json
 import string
 import numpy as np
@@ -35,7 +32,7 @@ class BagWords:
     
     def clean_string(self, input_str):
         """
-        remove punctuation
+        remove punctuation from an input string
         """
         punctuation = [i for i in string.punctuation] + ['„', '“', '”', '–']
         
@@ -50,6 +47,8 @@ class BagWords:
         remove stopwords
         stem the sentence
         return a vector (list) of tokens
+
+        eg. "Hello my name is XY" -> ["hello", "name", "XY"]
         """
         # extract single words
         splits = input_string.split()
@@ -146,7 +145,9 @@ class BagWords:
 
     def add_sentence(self, sentence):
         """
-        adds a sentence to the matrix
+        adds a sentence to the texts.
+        After adding all sentences it is necessary to 
+        call the method compute_matrix()
         """
         cleaned = self.clean_string(sentence)
         self.texts.append(cleaned)
@@ -177,6 +178,14 @@ class BagWords:
         given a new string calculates the similarity
         between it and every other vector and returns
         the index of the text.
+
+        For performance reasons, the matrix in not calculated again.
+        Instead, the number of new tokens in the input sentence
+        is calculated and for each token a new column od 0s is added
+        (since the word is new there is no old sentence with this word)
+        and given the new vocabulary (old + new tokens), the vector of the
+        new sentence is calculated and used to compute similarity with
+        the sentences in the matrix
 
         Input: string
         Output: index of the most similar text (int)
