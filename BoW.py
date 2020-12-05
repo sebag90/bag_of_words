@@ -181,7 +181,7 @@ class BagWords:
 
         For performance reasons, the matrix in not calculated again.
         Instead, the number of new tokens in the input sentence
-        is calculated and for each token a new column od 0s is added
+        is calculated and for each token a new column of 0s is added
         (since the word is new there is no old sentence with this word)
         and given the new vocabulary (old + new tokens), the vector of the
         new sentence is calculated and used to compute similarity with
