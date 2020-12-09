@@ -165,7 +165,7 @@ class BagWords:
         x = np.array(self.matrix)
         
         # number of vectors
-        N = 10*np.ones(x.shape)       
+        N = np.full(x.shape, x.shape[0])
         nj = (x>0).sum(axis=0) * np.ones(x.shape)
 
         tfidf = x * (1 + np.log(N/nj))
