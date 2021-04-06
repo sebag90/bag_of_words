@@ -8,8 +8,29 @@ For each query it returns the most similar document based on vector similarity (
 ## Dependencies:
 - Natural Language Toolkit: https://www.nltk.org/
 
-### Install:
-pip3 install -r requirements.txt
+## Requirements:
+* all requirements are saved in envoroment.yml
+
+## Quickstart:
+* install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+* cd into the root directory of this repository
+* create a new environment from the environment.yml file
+```
+conda env create -f environment.yml
+```
+
+* activate the new environment
+```
+conda activate txtlyse
+```
+
+Download  Data:
+```
+python init_setup.py
+```
+The script will download:
+* Glove word embedding (1GB)
+* some nltk packages needed for the project
 
 ## Supported languages:
 - German
@@ -23,5 +44,5 @@ Source: https://github.com/stopwords-iso/stopwords-iso
 place your text files in the input folder and start main.py:  
 ```
 search.py language
-es. python3 main.py de
+es. python3 search.py de
 ```

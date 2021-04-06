@@ -6,14 +6,39 @@ import numpy as np
 from nltk.stem.snowball import SnowballStemmer
 
 
+def progress_bar(iteration, total, prefix='', suffix='', decimals=1, length=40,
+                 fill='#', miss=".", end="\r", stay=True, fixed_len=False):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        miss        - Optional  : bar missing charachter (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    if fixed_len:
+        bar_len = length - len(prefix) - len(suffix)
+    else:
+        bar_len = length
 
-def print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
-    if iteration == total:
-        print()
+    percent = f"{100*(iteration/float(total)):.{decimals}f}"
+    filled_length = int(bar_len * iteration // total)
+    bar = f"{fill * filled_length}{miss * (bar_len - filled_length)}"
+    to_print = f"\r{prefix} [{bar}] {percent}% {suffix}"
+    print(to_print, end=end)
+
+    # Print New Line on Complete
+    if iteration >= total:
+        if stay:
+            print()
+        else:
+            # clean line given lenght of lase print
+            print(" "*len(to_print), end=end)
 
 
 class BagWords:
@@ -29,18 +54,16 @@ class BagWords:
 
         self.stopwords = set(stopwords[language])
 
-    
     def clean_string(self, input_str):
         """
         remove punctuation from an input string
         """
         punctuation = [i for i in string.punctuation] + ['„', '“', '”', '–']
-        
+
         for char in punctuation:
             input_str = input_str.replace(char, " ")
 
         return input_str
-
 
     def str_2_vec(self, input_string):
         """
@@ -56,23 +79,22 @@ class BagWords:
         stemmed = []
 
         languages = {
-            "en" : "english",
-            "it" : "italian",
-            "de" : "german"
+            "en": "english",
+            "it": "italian",
+            "de": "german"
         }
 
         # if word is not a stop word, save it in a new list (vector)
         for word in splits:
             if word.lower() not in self.stopwords:
                 cleaned.append(word)
-        
+
         # stem
         stemmer = SnowballStemmer(languages[self.language])
         for element in cleaned:
             stemmed.append(stemmer.stem(element))
 
         return stemmed
-
 
     # create matrix term list
     def create_vocabulary(self, sentence):
@@ -84,18 +106,17 @@ class BagWords:
             if term not in self.vocabulary:
                 self.vocabulary = np.append(self.vocabulary, term)
 
-
     def calculate_vec(self, sentence_vector, voc=None):
         """
         given a sentence in the form of a list of stemmed tokens
-        this method calculates a term frequency vector based on 
+        this method calculates a term frequency vector based on
         the vocabulary.
 
         Input: vector of tokens
         Output: term frequency vector
         """
-        if voc == None: 
-            vocabulary = np.array(self.vocabulary) 
+        if not voc:
+            vocabulary = np.array(self.vocabulary)
         else:
             vocabulary = np.array(voc)
 
@@ -106,14 +127,10 @@ class BagWords:
 
         for i in indexes:
             result[i] += 1
-        
+
         return result
 
-
-
-    # PUBLIC METHODS---------------------------------------------------------------------------------
-
-
+    # PUBLIC METHODS--------------------------------------------------------
 
     def compute_matrix(self, process=False):
         """
@@ -122,56 +139,53 @@ class BagWords:
         """
         self.matrix = []
         # add all sentences to vocabulary
-        
+
         for i in range(len(self.texts)):
             if not isinstance(self.texts[i], list):
                 self.texts[i] = self.str_2_vec(self.texts[i])
                 self.create_vocabulary(self.texts[i])
-                if process == True:
-                    print_progress_bar(i+1, len(self.texts), prefix="Loading ", length=40)
-         
-        
+                if process:
+                    progress_bar(i+1, len(self.texts),
+                                 prefix="Loading ", length=40)
+
         # calculate matrix
         j = 1
         for text in self.texts:
             vec = self.calculate_vec(text)
             self.matrix.append(vec)
-            if process == True:
-                print_progress_bar(j, len(self.texts), prefix="Indexing", length=40)
+            if process:
+                progress_bar(j, len(self.texts), prefix="Indexing", length=40)
                 j += 1
 
         self.matrix = np.array(self.matrix)
 
-
     def add_sentence(self, sentence):
         """
         adds a sentence to the texts.
-        After adding all sentences it is necessary to 
+        After adding all sentences it is necessary to
         call the method compute_matrix()
         """
         cleaned = self.clean_string(sentence)
         self.texts.append(cleaned)
-
 
     def tf_idf(self):
         """
         calculate inverse term frequency
         IDF = 1 + log(N/nj)
 
-        N = number of total vectors 
+        N = number of total vectors
         nj = number of vectors containing the word
         """
 
         x = np.array(self.matrix)
-        
+
         # number of vectors
         N = x.shape[0]
-        nj = (x>0).sum(axis=0) * np.ones(x.shape)
+        nj = (x > 0).sum(axis=0) * np.ones(x.shape)
 
         tfidf = x * (1 + np.log(N/nj))
 
         self.matrix = tfidf
-
 
     def similarity(self, new_sentence):
         """
@@ -192,7 +206,7 @@ class BagWords:
         """
         cleaned = self.clean_string(new_sentence)
         tokens = self.str_2_vec(cleaned)
-        
+
         if not set(tokens).intersection(set(self.vocabulary)):
             return None
 
@@ -207,11 +221,9 @@ class BagWords:
             return np.argmax(result)
 
 
-
-
 if __name__ == "__main__":
     bag = BagWords("en")
-    
+
     texts = [
         "I was going to the shop and saw a new car",
         "my new car is ideal for going to the shop",
