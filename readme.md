@@ -21,16 +21,9 @@ conda env create -f environment.yml
 
 * activate the new environment
 ```
-conda activate txtlyse
+conda activate bow
 ```
 
-Download  Data:
-```
-python init_setup.py
-```
-The script will download:
-* Glove word embedding (1GB)
-* some nltk packages needed for the project
 
 ## Supported languages:
 - German
