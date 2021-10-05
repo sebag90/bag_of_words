@@ -1,7 +1,9 @@
-from BoW import BagWords
 import argparse
+import json
 import os
 import re
+
+from BoW import BagWords
 
 
 def retrieve_articles(path):
@@ -41,13 +43,15 @@ def main():
         print("Unsupported language!")
         return
 
-    # TODO:
-    # check if input/output folders are there
-    # if not create them
+    # collect stopwords
+    with open("stopwords-iso.json") as stopwords:
+        stopwords = json.load(stopwords)
+
+    stopwords = stopwords[args.language]
 
     # retrieve all articles from folder bestand and stopwords
     articles = retrieve_articles("input")
-    bow = BagWords(args.language)
+    bow = BagWords(args.language, stopwords)
 
     for article in articles:
         bow.add_sentence(articles[article]["text"])
