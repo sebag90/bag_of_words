@@ -8,9 +8,8 @@ from BoW import BagWords
 
 def retrieve_articles(path):
     strings = {}
-    i = 1
 
-    for filename in os.listdir(path):
+    for i, filename in enumerate(os.listdir(path)):
         text = {}
         path_to_file = f"{path}/{filename}"
 
@@ -21,8 +20,7 @@ def retrieve_articles(path):
 
         text["title"] = title
         text["text"] = my_string
-        strings[str(i)] = text
-        i += 1
+        strings[i] = text
 
     return strings
 
@@ -33,13 +31,9 @@ def main():
         "language", help="select a language (en - de - it)",
         type=str, metavar="lang"
     )
-    parser.add_argument(
-        "-c", help="use Cistem as a Tokenizer (only German)",
-        action="store_true"
-    )
     args = parser.parse_args()
 
-    if args.language not in ["de", "it", "en"]:
+    if args.language not in {"de", "it", "en"}:
         print("Unsupported language!")
         return
 
@@ -67,7 +61,7 @@ def main():
         result = bow.similarity(user_input)
 
         if result:
-            print(articles[str(result + 1)]["title"], "\n")
+            print(articles[result]["title"], "\n")
 
         else:
             print("No matching document found\n")
