@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-
-
 from BoW import BagWords
 import argparse
 import os
@@ -30,10 +27,14 @@ def retrieve_articles(path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("language", help="select a language (en - de - it)",
-                        type=str, metavar="lang")
-    parser.add_argument("-c", help="use Cistem as a Tokenizer (only German)",
-                        action="store_true")
+    parser.add_argument(
+        "language", help="select a language (en - de - it)",
+        type=str, metavar="lang"
+    )
+    parser.add_argument(
+        "-c", help="use Cistem as a Tokenizer (only German)",
+        action="store_true"
+    )
     args = parser.parse_args()
 
     if args.language not in ["de", "it", "en"]:

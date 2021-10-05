@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-
+import copy
 import json
 import string
 import numpy as np
@@ -43,16 +42,12 @@ def progress_bar(iteration, total, prefix='', suffix='', decimals=1, length=40,
 
 class BagWords:
 
-    def __init__(self, language):
+    def __init__(self, language, stopwords):
         self.language = language
-        self.vocabulary = []
-        self.matrix = []
-        self.texts = []
-
-        with open("stopwords-iso.json") as stopwords:
-            stopwords = json.load(stopwords)
-
-        self.stopwords = set(stopwords[language])
+        self.vocabulary = dict()
+        self.matrix = list()
+        self.texts = list()
+        self.stopwords = set(stopwords)
 
     def clean_string(self, input_str):
         """
@@ -65,7 +60,7 @@ class BagWords:
 
         return input_str
 
-    def str_2_vec(self, input_string):
+    def stem(self, input_string, train=True):
         """
         remove stopwords
         stem the sentence
@@ -75,7 +70,6 @@ class BagWords:
         """
         # extract single words
         splits = input_string.split()
-        cleaned = []
         stemmed = []
 
         languages = {
@@ -84,29 +78,22 @@ class BagWords:
             "de": "german"
         }
 
+        stemmer = SnowballStemmer(languages[self.language])
+
         # if word is not a stop word, save it in a new list (vector)
         for word in splits:
             if word.lower() not in self.stopwords:
-                cleaned.append(word)
+                stem = stemmer.stem(word)
+                stemmed.append(stem)
 
-        # stem
-        stemmer = SnowballStemmer(languages[self.language])
-        for element in cleaned:
-            stemmed.append(stemmer.stem(element))
+                # add word to vocabulary
+                if train is True:
+                    if stem not in self.vocabulary:
+                        self.vocabulary[stem] = len(self.vocabulary)
 
         return stemmed
 
-    # create matrix term list
-    def create_vocabulary(self, sentence):
-        """
-        takes as input a sentence in form of a stemmed vector
-        adds new tokens to the vocabulary
-        """
-        for term in sentence:
-            if term not in self.vocabulary:
-                self.vocabulary = np.append(self.vocabulary, term)
-
-    def calculate_vec(self, sentence_vector, voc=None):
+    def stem2vec(self, sentence_vector, voc=None):
         """
         given a sentence in the form of a list of stemmed tokens
         this method calculates a term frequency vector based on
@@ -115,20 +102,16 @@ class BagWords:
         Input: vector of tokens
         Output: term frequency vector
         """
-        if not voc:
-            vocabulary = np.array(self.vocabulary)
-        else:
-            vocabulary = np.array(voc)
+        if voc is None:
+            voc = self.vocabulary
 
-        sentence_vector = np.array(sentence_vector)
+        vec = np.zeros(len(voc))
 
-        indexes = [np.where(x == vocabulary)[0][0] for x in sentence_vector]
-        result = np.zeros(vocabulary.shape)
+        for word in sentence_vector:
+            index = voc[word]
+            vec[index] += 1
 
-        for i in indexes:
-            result[i] += 1
-
-        return result
+        return vec
 
     # PUBLIC METHODS--------------------------------------------------------
 
@@ -137,25 +120,14 @@ class BagWords:
         given all the sentences added, the bag of words will compute
         the term frequency matrix
         """
-        self.matrix = []
-        # add all sentences to vocabulary
-
-        for i in range(len(self.texts)):
-            if not isinstance(self.texts[i], list):
-                self.texts[i] = self.str_2_vec(self.texts[i])
-                self.create_vocabulary(self.texts[i])
-                if process:
-                    progress_bar(i+1, len(self.texts),
-                                 prefix="Loading ", length=40)
-
         # calculate matrix
-        j = 1
-        for text in self.texts:
-            vec = self.calculate_vec(text)
+        for i, text in enumerate(self.texts):
+            vec = self.stem2vec(text)
             self.matrix.append(vec)
             if process:
-                progress_bar(j, len(self.texts), prefix="Indexing", length=40)
-                j += 1
+                progress_bar(
+                    i+1, len(self.texts), prefix="Indexing", length=40
+                )
 
         self.matrix = np.array(self.matrix)
 
@@ -166,7 +138,8 @@ class BagWords:
         call the method compute_matrix()
         """
         cleaned = self.clean_string(sentence)
-        self.texts.append(cleaned)
+        stemmed = self.stem(cleaned)
+        self.texts.append(stemmed)
 
     def tf_idf(self):
         """
@@ -205,37 +178,53 @@ class BagWords:
         Output: index of the most similar text (int)
         """
         cleaned = self.clean_string(new_sentence)
-        tokens = self.str_2_vec(cleaned)
+        stemmed = self.stem(cleaned, train=False)
 
-        if not set(tokens).intersection(set(self.vocabulary)):
+        if not set(stemmed).intersection(set(self.vocabulary.keys())):
             return None
 
         else:
-            difference = set(tokens) - set(self.vocabulary)
+            difference = set(stemmed) - set(self.vocabulary.keys())
             to_append = np.zeros((self.matrix.shape[0], len(difference)))
             matrix = np.append(self.matrix, to_append, axis=1)
-            new_voc = list(self.vocabulary) + list(difference)
-            question_vector = self.calculate_vec(tokens, new_voc)
-            result = np.matmul(matrix, question_vector)
 
+            new_voc = copy.deepcopy(self.vocabulary)
+            for word in difference:
+                if word not in new_voc:
+                    new_voc[word] = len(new_voc)
+
+            question_vector = self.stem2vec(stemmed, new_voc)
+            result = np.matmul(matrix, question_vector)
             return np.argmax(result)
 
 
 if __name__ == "__main__":
-    bag = BagWords("en")
+    # collect stopwords
+    with open("stopwords-iso.json") as stopwords:
+        stopwords = json.load(stopwords)
+
+    stopwords = stopwords["en"]
 
     texts = [
         "I was going to the shop and saw a new car",
         "my new car is ideal for going to the shop",
         "my computer is less expensive than my car",
-        "my car is more expensive than my computer"
+        "my car is more expensive than my house"
     ]
+
+    bag = BagWords("en", stopwords)
+
     for text in texts:
         bag.add_sentence(text)
 
     bag.compute_matrix()
+    print("Bag of Words:")
+    print('\t'.join(bag.vocabulary))
+    for i, row in enumerate(bag.matrix):
+        row = '\t'.join([str(int(i)) for i in row])
+        print(f"{row}\t{texts[i]}")
 
-    print(bag.similarity("expensive car"))
-
-    for i in bag.matrix:
-        print(i)
+    query = "I drive to the shop with my car"
+    print(f"Query:\t{query}")
+    result = bag.similarity(query)  # returns index
+    print(f"Most similar text:\t{texts[result]}")
